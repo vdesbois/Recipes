@@ -1,11 +1,14 @@
 import { createRecipeCard } from "./recipe-card.js";
 import { t } from "./i18n.js";
 
+const RECIPES_PER_PAGE = 20;
+
 export function createRecipeCollection({
   root,
   count,
   searchInput,
   categoryFilter,
+  pagination,
   onEdit,
   onDelete,
 }) {
@@ -13,6 +16,11 @@ export function createRecipeCollection({
   let categories = [];
   let selectedCategory = "";
   let searchText = "";
+  let currentPage = 0;
+
+  const previousPageButton = pagination.querySelector("#recipe-page-previous");
+  const nextPageButton = pagination.querySelector("#recipe-page-next");
+  const pageStatus = pagination.querySelector("#recipe-page-status");
 
   function render() {
     root.replaceChildren();
@@ -29,7 +37,22 @@ export function createRecipeCollection({
           : true;
       return matchesSearch && matchesCategory;
     });
+    const collator = new Intl.Collator(document.documentElement.lang || undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
+    visibleRecipes.sort((first, second) => collator.compare(first.name, second.name));
     count.textContent = String(visibleRecipes.length);
+
+    const pageCount = Math.ceil(visibleRecipes.length / RECIPES_PER_PAGE);
+    currentPage = pageCount === 0 ? 0 : Math.min(currentPage, pageCount - 1);
+    pagination.hidden = pageCount <= 1;
+    pageStatus.textContent = t("pagination.status", {
+      page: currentPage + 1,
+      total: pageCount,
+    });
+    previousPageButton.disabled = currentPage === 0;
+    nextPageButton.disabled = currentPage >= pageCount - 1;
 
     if (visibleRecipes.length === 0) {
       const emptyState = document.createElement("div");
@@ -57,7 +80,10 @@ export function createRecipeCollection({
       return;
     }
 
-    root.append(...visibleRecipes.map(createRecipeCard));
+    const firstRecipe = currentPage * RECIPES_PER_PAGE;
+    root.append(...visibleRecipes
+      .slice(firstRecipe, firstRecipe + RECIPES_PER_PAGE)
+      .map(createRecipeCard));
   }
 
   function setCategories(newCategories) {
@@ -66,6 +92,7 @@ export function createRecipeCollection({
       && !categories.includes(selectedCategory.slice("category:".length));
     if (removedSelectedCategory) {
       selectedCategory = "";
+      currentPage = 0;
     }
 
     categoryFilter.replaceChildren(
@@ -81,10 +108,22 @@ export function createRecipeCollection({
 
   searchInput.addEventListener("input", () => {
     searchText = searchInput.value.trim();
+    currentPage = 0;
     render();
   });
   categoryFilter.addEventListener("change", () => {
     selectedCategory = categoryFilter.value;
+    currentPage = 0;
+    render();
+  });
+  previousPageButton.addEventListener("click", () => {
+    if (currentPage > 0) {
+      currentPage -= 1;
+      render();
+    }
+  });
+  nextPageButton.addEventListener("click", () => {
+    currentPage += 1;
     render();
   });
   root.addEventListener("click", (event) => {
@@ -109,6 +148,7 @@ export function createRecipeCollection({
   return {
     setRecipes(newRecipes) {
       recipes = newRecipes;
+      currentPage = 0;
       render();
     },
     setCategories,
@@ -121,6 +161,7 @@ export function createRecipeCollection({
       recipes = exists
         ? recipes.map((item) => item.id === recipe.id ? recipe : item)
         : [recipe, ...recipes];
+      currentPage = 0;
       render();
     },
     removeRecipe(recipeId) {

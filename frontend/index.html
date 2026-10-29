@@ -94,6 +94,11 @@
           </div>
         </div>
         <div class="recipe-grid" id="recipe-list" aria-live="polite"></div>
+        <nav class="recipe-pagination" id="recipe-pagination" aria-label="Recipe pages" data-i18n-aria-label="pagination.navigation" hidden>
+          <button class="button button-quiet" id="recipe-page-previous" type="button" data-i18n="pagination.previous">Previous</button>
+          <span id="recipe-page-status" role="status" aria-live="polite"></span>
+          <button class="button button-quiet" id="recipe-page-next" type="button" data-i18n="pagination.next">Next</button>
+        </nav>
       </section>
       <footer class="footer"><span data-i18n="footer">Made for the recipes that feel like home</span> <span aria-hidden="true">♥</span></footer>
     </main>

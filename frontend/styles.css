@@ -368,6 +368,29 @@ h1 span {
   outline: 0;
 }
 
+.recipe-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  color: #647168;
+  font-size: 13px;
+}
+
+.recipe-pagination[hidden] {
+  display: none;
+}
+
+.recipe-pagination .button {
+  min-height: 40px;
+}
+
+.recipe-pagination .button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .count {
   display: inline-grid;
   width: 25px;
