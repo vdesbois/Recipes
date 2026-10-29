@@ -20,6 +20,7 @@ const collection = createRecipeCollection({
   count: document.querySelector("#recipe-count"),
   searchInput: document.querySelector("#recipe-search"),
   categoryFilter: document.querySelector("#category-filter"),
+  pagination: document.querySelector("#recipe-pagination"),
   onEdit: (recipe) => recipeForm.open(recipe),
   onDelete: deleteRecipeAndRefresh,
 });

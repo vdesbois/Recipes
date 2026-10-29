@@ -459,6 +459,47 @@ test.describe("recipe collection", () => {
     await expect(page.locator("#recipe-count")).toHaveText("3");
   });
 
+  test("sorts recipes by title and shows 20 recipes per page", async ({ page, request }) => {
+    for (let index = 25; index > 0; index -= 1) {
+      const response = await request.post("/api/recipes", {
+        data: { name: `Recipe ${index}` },
+      });
+      expect(response.status()).toBe(201);
+    }
+
+    await page.goto("/");
+    const recipeTitles = page.locator(".recipe-card h3");
+    const pagination = page.locator("#recipe-pagination");
+    const expectedTitles = (start, end) => Array.from(
+      { length: end - start + 1 },
+      (_, index) => `Recipe ${start + index}`,
+    );
+
+    await expect(recipeTitles).toHaveText(expectedTitles(1, 20));
+    await expect(page.locator("#recipe-count")).toHaveText("25");
+    await expect(pagination).toBeVisible();
+    await expect(page.locator("#recipe-page-status")).toHaveText("Page 1 of 2");
+    await expect(page.getByRole("button", { name: "Previous" })).toBeDisabled();
+
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(recipeTitles).toHaveText(expectedTitles(21, 25));
+    await expect(page.locator("#recipe-page-status")).toHaveText("Page 2 of 2");
+    await expect(page.getByRole("button", { name: "Next" })).toBeDisabled();
+
+    await page.getByRole("button", { name: "Previous" }).click();
+    await expect(recipeTitles).toHaveText(expectedTitles(1, 20));
+    await page.getByRole("searchbox", { name: "Search recipes" }).fill("Recipe 25");
+    await expect(recipeTitles).toHaveText(["Recipe 25"]);
+    await expect(pagination).toBeHidden();
+
+    await page.getByRole("searchbox", { name: "Search recipes" }).fill("");
+    await page.locator(".topbar .locale-trigger").click();
+    await page.getByRole("button", { name: "Français (Québec)" }).click();
+    await expect(pagination).toHaveAttribute("aria-label", "Pages de recettes");
+    await expect(page.getByRole("button", { name: "Suivant" })).toBeVisible();
+    await expect(page.locator("#recipe-page-status")).toHaveText("Page 1 sur 2");
+  });
+
   test("searches contiguous text in titles and notes without case sensitivity", async ({ page, request }) => {
     for (const recipe of [
       { name: "Roasted Tomato Soup", notes: "Serve with crusty bread.", category: "Dinner" },
