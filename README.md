@@ -21,6 +21,35 @@ Keep the server process running while using the app. SQLite data is stored in `d
 
 To select a different database path or server port, use `python3 -m backend.server --help`.
 
+## Run with Docker on Ubuntu
+
+Install Docker Engine and the Docker Compose plugin on the server, then clone this repository. From the project directory, create the persistent data directory and let the container's unprivileged user write to it:
+
+```sh
+sudo mkdir -p data
+sudo chown -R 10001:10001 data
+docker compose up -d --build
+```
+
+Open `http://<server-computer-local-IP>:8000` from a device on your home network. Compose publishes the app on port 8000 and restarts it automatically after a reboot. Recipe data is stored in the host's `data/` directory, mounted into the container; this includes both `recipes.sqlite3` and the `recipe-images/` directory. The Docker image runs the app as an unprivileged user.
+
+To update after a new version is pushed:
+
+```sh
+git pull
+docker compose up -d --build
+```
+
+Back up the database and pictures together. To make a consistent archive, stop the app while archiving, then start it again:
+
+```sh
+docker compose stop
+tar -czf "$HOME/recipe-data-$(date +%F).tar.gz" data
+docker compose start
+```
+
+Restore the archive into `data/` while the app is stopped, then make sure the directory is writable by the container user with `sudo chown -R 10001:10001 data`.
+
 ## Run tests
 
 Run the backend, database, and integration tests from the project root:

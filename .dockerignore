@@ -1,0 +1,9 @@
+.git
+.gitignore
+.pytest_cache
+__pycache__
+*.py[cod]
+node_modules
+playwright-report
+test-results
+data
