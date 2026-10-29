@@ -45,8 +45,9 @@ class RecipeAppIntegrationTests(unittest.TestCase):
             ("/api.js", b"uploadRecipeImage"),
             ("/recipe-collection.js", b"createRecipeCard"),
             ("/recipe-form.js", b"createOrderedListEditor"),
-            ("/ordered-list-editor.js", b"Move"),
+            ("/ordered-list-editor.js", b"action.moveItemUp"),
             ("/recipe-card.js", b"recipe-card-link"),
+            ("/i18n.js", b"fr-CA"),
             ("/styles.css", b".recipe-card"),
         ):
             with self.subTest(path=path):

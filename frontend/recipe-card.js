@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 export function createRecipeCard(recipe) {
   const card = document.createElement("article");
   card.className = "recipe-card";
@@ -10,22 +12,22 @@ export function createRecipeCard(recipe) {
   viewLink.className = "recipe-card-link";
   viewLink.href = `/recipe.html?id=${encodeURIComponent(recipe.id)}`;
   viewLink.textContent = recipe.name;
-  viewLink.setAttribute("aria-label", `View ${recipe.name}`);
+  viewLink.setAttribute("aria-label", t("action.viewRecipe", { name: recipe.name }));
   title.append(viewLink);
 
   const editButton = document.createElement("button");
   editButton.className = "edit-button";
   editButton.type = "button";
   editButton.dataset.editId = recipe.id;
-  editButton.textContent = "Edit";
-  editButton.setAttribute("aria-label", `Edit ${recipe.name}`);
+  editButton.textContent = t("action.edit");
+  editButton.setAttribute("aria-label", t("action.editRecipe", { name: recipe.name }));
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "delete-button";
   deleteButton.type = "button";
   deleteButton.dataset.deleteId = recipe.id;
-  deleteButton.textContent = "Delete";
-  deleteButton.setAttribute("aria-label", `Delete ${recipe.name}`);
+  deleteButton.textContent = t("action.delete");
+  deleteButton.setAttribute("aria-label", t("action.deleteRecipe", { name: recipe.name }));
 
   const actions = document.createElement("div");
   actions.className = "recipe-actions";
@@ -46,10 +48,10 @@ export function createRecipeCard(recipe) {
   rating.className = recipe.rating === null ? "recipe-rating unrated" : "recipe-rating";
   rating.setAttribute(
     "aria-label",
-    recipe.rating === null ? "Not rated" : `${recipe.rating} out of 5 stars`,
+    recipe.rating === null ? t("rating.none") : t("rating.outOfFive", { rating: recipe.rating }),
   );
   rating.textContent = recipe.rating === null
-    ? "Not rated"
+    ? t("rating.none")
     : `${"★".repeat(recipe.rating)}${"☆".repeat(5 - recipe.rating)}`;
   card.append(rating);
 

@@ -86,6 +86,40 @@ test.describe("recipe collection", () => {
     expect(dialogBounds.height).toBeLessThanOrEqual(667);
   });
 
+  test("switches between Canadian English and Quebec French without translating recipe content", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Add a recipe" }).click();
+    await page.getByLabel("Recipe name").fill("Tourtière");
+    await page.getByLabel("Notes OPTIONAL").fill("Family recipe notes.");
+    await page.getByRole("button", { name: "Add step" }).click();
+    await page.getByRole("textbox", { name: "Step 1" }).fill("Bake until golden.");
+
+    await page.locator(".locale-switch-dialog .locale-trigger").click();
+    await page.getByRole("button", { name: "Français (Québec)" }).click();
+    await expect(page.locator("html")).toHaveAttribute("lang", "fr-CA");
+    await expect(page.getByRole("button", { name: "Ajouter une recette" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Ajouter une recette" })).toBeVisible();
+    await expect(page.getByLabel("Nom de la recette")).toHaveValue("Tourtière");
+    await expect(page.getByLabel("Notes FACULTATIF")).toHaveValue("Family recipe notes.");
+    await expect(page.getByRole("textbox", { name: "Étape 1" })).toHaveValue("Bake until golden.");
+
+    await page.getByRole("button", { name: "Enregistrer la recette" }).click();
+    await page.getByRole("link", { name: "Voir Tourtière" }).click();
+    await expect(page).toHaveTitle("Tourtière | Mes recettes");
+    await expect(page.getByRole("heading", { name: "Notes" })).toBeVisible();
+    await expect(page.locator("#detail-notes")).toHaveText("Family recipe notes.");
+    await expect(page.getByRole("heading", { name: "Préparation" })).toBeVisible();
+    await expect(page.locator("#detail-steps li")).toHaveText(["Bake until golden."]);
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Préparation" })).toBeVisible();
+
+    await page.locator(".locale-switch:not(.locale-switch-dialog) .locale-trigger").click();
+    await page.getByRole("button", { name: "English (Canada)" }).click();
+    await expect(page.locator("html")).toHaveAttribute("lang", "en-CA");
+    await expect(page.getByRole("heading", { name: "Instructions" })).toBeVisible();
+    await expect(page.locator("#detail-steps li")).toHaveText(["Bake until golden."]);
+  });
+
   test("uploads, displays the first picture, and removes recipe pictures", async ({ page, request }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Add a recipe" }).click();

@@ -1,9 +1,18 @@
 import { getRecipe } from "./api.js";
+import {
+  applyTranslations,
+  initializeLocalization,
+  t,
+  translateError,
+} from "./i18n.js";
+
+initializeLocalization();
 
 const loadingStatus = document.querySelector("#loading-status");
 const errorNotice = document.querySelector("#recipe-error");
 const errorMessage = document.querySelector("#recipe-error-message");
 const detail = document.querySelector("#recipe-detail");
+let loadedRecipe = null;
 
 function renderList(root, items) {
   root.replaceChildren(...items.map((text) => {
@@ -14,11 +23,14 @@ function renderList(root, items) {
 }
 
 function renderRecipe(recipe) {
-  document.title = `${recipe.name} | My Recipes`;
+  document.title = `${recipe.name} | ${t("app.title")}`;
   document.querySelector("#detail-name").textContent = recipe.name;
   document.querySelector("#detail-rating").textContent = recipe.rating === null
-    ? "Not rated"
-    : `${"★".repeat(recipe.rating)}${"☆".repeat(5 - recipe.rating)} — ${recipe.rating} out of 5`;
+    ? t("rating.none")
+    : t("rating.outOfFiveDetail", {
+      stars: `${"★".repeat(recipe.rating)}${"☆".repeat(5 - recipe.rating)}`,
+      rating: recipe.rating,
+    });
 
   const category = document.querySelector("#detail-category");
   category.textContent = recipe.category ?? "";
@@ -31,14 +43,19 @@ function renderRecipe(recipe) {
   gallery.replaceChildren(...recipe.images.map((image, index) => {
     const picture = document.createElement("img");
     picture.src = image.url;
-    picture.alt = `${recipe.name} picture ${index + 1}`;
+    picture.alt = t("detail.pictureAlt", { name: recipe.name, number: index + 1 });
     picture.loading = index === 0 ? "eager" : "lazy";
     return picture;
   }));
   gallery.hidden = recipe.images.length === 0;
 
   const cookingDetails = [
-    ["cooking_time_minutes", "detail-cooking-time-row", "detail-cooking-time", (value) => `${value} minutes`],
+    [
+      "cooking_time_minutes",
+      "detail-cooking-time-row",
+      "detail-cooking-time",
+      (value) => t(value === 1 ? "detail.minuteOne" : "detail.minutes", { count: value }),
+    ],
     ["cooking_temperature_f", "detail-cooking-temperature-row", "detail-cooking-temperature", (value) => `${value} °F`],
     ["servings", "detail-servings-row", "detail-servings", (value) => String(value)],
   ];
@@ -71,20 +88,29 @@ async function loadRecipe() {
   if (!recipeId) {
     loadingStatus.hidden = true;
     errorNotice.hidden = false;
-    errorMessage.textContent = "No recipe was specified.";
+    errorMessage.textContent = t("detail.notSpecified");
     return;
   }
 
   try {
-    const recipe = await getRecipe(recipeId);
-    renderRecipe(recipe);
+    loadedRecipe = await getRecipe(recipeId);
+    renderRecipe(loadedRecipe);
     detail.hidden = false;
   } catch (error) {
     errorNotice.hidden = false;
-    errorMessage.textContent = `This recipe could not be loaded. ${error.message}`;
+    errorMessage.textContent = t("detail.loadFailed", { error: translateError(error.message) });
   } finally {
     loadingStatus.hidden = true;
   }
 }
+
+document.addEventListener("localechange", () => {
+  applyTranslations();
+  if (loadedRecipe) {
+    renderRecipe(loadedRecipe);
+  } else {
+    loadingStatus.textContent = t("detail.loading");
+  }
+});
 
 void loadRecipe();

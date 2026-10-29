@@ -3,6 +3,7 @@ import {
   saveRecipe,
   uploadRecipeImage,
 } from "./api.js";
+import { t, translateError } from "./i18n.js";
 import { createOrderedListEditor } from "./ordered-list-editor.js";
 
 const MAX_RECIPE_IMAGES = 10;
@@ -70,8 +71,8 @@ export function createRecipeForm({ onSaved }) {
     const removeButton = document.createElement("button");
     removeButton.className = "step-remove-button";
     removeButton.type = "button";
-    removeButton.textContent = "Remove";
-    removeButton.setAttribute("aria-label", `Remove picture ${alt}`);
+    removeButton.textContent = t("action.remove");
+    removeButton.setAttribute("aria-label", t("action.removePicture", { name: alt }));
     removeButton.addEventListener("click", () => onRemove(removeButton), { once: true });
     item.append(image, removeButton);
     return item;
@@ -90,7 +91,7 @@ export function createRecipeForm({ onSaved }) {
       formError.hidden = true;
     } catch (error) {
       formError.hidden = false;
-      formError.textContent = `The picture could not be removed. ${error.message}`;
+      formError.textContent = t("error.pictureRemove", { error: translateError(error.message) });
       removeButton.disabled = false;
     }
   }
@@ -100,7 +101,7 @@ export function createRecipeForm({ onSaved }) {
     currentRecipe = recipe;
     pendingImages = [];
     imageInput.value = "";
-    dialogTitle.textContent = editingId ? "Edit recipe" : "Add a recipe";
+    dialogTitle.textContent = t(editingId ? "form.editTitle" : "form.addTitle");
     nameInput.value = recipe?.name ?? "";
     ratingInput.value = recipe?.rating === null || recipe?.rating === undefined
       ? ""
@@ -128,9 +129,9 @@ export function createRecipeForm({ onSaved }) {
     let error = "";
     for (const file of imageInput.files) {
       if (!SUPPORTED_IMAGE_TYPES.has(file.type)) {
-        error = "Pictures must be JPEG, PNG, or WebP.";
+        error = t("error.pictureFormat");
       } else if (file.size > MAX_IMAGE_SIZE) {
-        error = "Each picture must be 5 MB or smaller.";
+        error = t("error.pictureSize");
       } else {
         acceptedFiles.push(file);
       }
@@ -141,7 +142,7 @@ export function createRecipeForm({ onSaved }) {
       - pendingImages.length;
     pendingImages.push(...acceptedFiles.slice(0, Math.max(0, availableSlots)));
     if (acceptedFiles.length > availableSlots) {
-      error = "A recipe can have at most 10 pictures.";
+      error = t("error.pictureLimit");
     }
     imageInput.value = "";
     renderImages();
@@ -155,7 +156,7 @@ export function createRecipeForm({ onSaved }) {
 
     const name = nameInput.value.trim();
     if (!name) {
-      nameInput.setCustomValidity("Please enter a recipe name.");
+      nameInput.setCustomValidity(t("error.nameRequired"));
       nameInput.reportValidity();
       return;
     }
@@ -201,8 +202,8 @@ export function createRecipeForm({ onSaved }) {
     } catch (error) {
       formError.hidden = false;
       formError.textContent = currentRecipe
-        ? `Your recipe was saved, but a picture could not be uploaded. ${error.message}`
-        : `Your recipe could not be saved. ${error.message}`;
+        ? t("error.pictureUpload", { error: translateError(error.message) })
+        : t("error.recipeSave", { error: translateError(error.message) });
       if (currentRecipe) {
         onSaved(currentRecipe);
       }
@@ -213,6 +214,14 @@ export function createRecipeForm({ onSaved }) {
 
   return {
     open,
+    refreshLocalization() {
+      if (dialog.open) {
+        dialogTitle.textContent = t(editingId ? "form.editTitle" : "form.addTitle");
+        stepEditor.setValues(stepEditor.getValues());
+        ingredientEditor.setValues(ingredientEditor.getValues());
+        renderImages();
+      }
+    },
     setCategories(categories) {
       categorySuggestions.replaceChildren(...categories.map((category) => {
         const option = document.createElement("option");

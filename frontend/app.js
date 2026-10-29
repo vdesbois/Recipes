@@ -1,6 +1,9 @@
 import { deleteRecipe, getCategories, getRecipes } from "./api.js";
+import { initializeLocalization, t, translateError } from "./i18n.js";
 import { createRecipeCollection } from "./recipe-collection.js";
 import { createRecipeForm } from "./recipe-form.js";
+
+initializeLocalization();
 
 const appNotice = document.querySelector("#app-notice");
 const noticeMessage = document.querySelector("#notice-message");
@@ -21,11 +24,16 @@ const collection = createRecipeCollection({
   onDelete: deleteRecipeAndRefresh,
 });
 
+document.addEventListener("localechange", () => {
+  collection.refresh();
+  recipeForm.refreshLocalization();
+});
+
 const recipeForm = createRecipeForm({
   onSaved(recipe) {
     collection.upsertRecipe(recipe);
     appNotice.hidden = true;
-    void refreshCategories("The recipe was saved, but category suggestions could not be refreshed.");
+    void refreshCategories(t("notice.saveCategoryFailed", { error: "" }).trim());
   },
 });
 
@@ -35,12 +43,12 @@ async function refreshCategories(errorMessage) {
     recipeForm.setCategories(categories);
     collection.setCategories(categories);
   } catch (error) {
-    showNotice(`${errorMessage} ${error.message}`);
+    showNotice(`${errorMessage} ${translateError(error.message)}`);
   }
 }
 
 async function deleteRecipeAndRefresh(recipe, button) {
-  if (!window.confirm(`Delete "${recipe.name}"? This cannot be undone.`)) {
+  if (!window.confirm(t("notice.deleteConfirm", { name: recipe.name }))) {
     return;
   }
 
@@ -50,17 +58,17 @@ async function deleteRecipeAndRefresh(recipe, button) {
     await deleteRecipe(recipe.id);
     collection.removeRecipe(recipe.id);
     await refreshCategories(
-      "The recipe was deleted, but category suggestions could not be refreshed.",
+      t("notice.deleteCategoryFailed", { error: "" }).trim(),
     );
   } catch (error) {
-    showNotice(`Your recipe could not be deleted. ${error.message}`);
+    showNotice(t("notice.deleteFailed", { error: translateError(error.message) }));
     button.disabled = false;
   }
 }
 
 async function loadRecipes() {
   loadingStatus.hidden = false;
-  loadingStatus.textContent = "Loading your recipes…";
+  loadingStatus.textContent = t("status.loadingRecipes");
   recipeSection.hidden = true;
   appNotice.hidden = true;
 
@@ -76,11 +84,11 @@ async function loadRecipes() {
       if (recipe) {
         recipeForm.open(recipe);
       } else {
-        showNotice("That recipe could not be found.");
+        showNotice(t("notice.notFound"));
       }
     }
   } catch (error) {
-    showNotice(`Your recipes could not be loaded. ${error.message}`);
+    showNotice(t("notice.loadFailed", { error: translateError(error.message) }));
   } finally {
     loadingStatus.hidden = true;
   }
