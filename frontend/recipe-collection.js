@@ -1,4 +1,5 @@
 import { createRecipeCard } from "./recipe-card.js";
+import { t } from "./i18n.js";
 
 export function createRecipeCollection({
   root,
@@ -41,16 +42,16 @@ export function createRecipeCollection({
 
       const heading = document.createElement("h3");
       heading.textContent = recipes.length === 0
-        ? "Your recipe box is ready"
+        ? t("empty.readyTitle")
         : searchText
-          ? "No matching recipes"
-          : "No recipes in this category";
+          ? t("empty.searchTitle")
+          : t("empty.categoryTitle");
       const description = document.createElement("p");
       description.textContent = recipes.length === 0
-        ? "Add a favorite to get your collection started."
+        ? t("empty.readyDescription")
         : searchText
-          ? "Try another search or check your spelling."
-          : "Choose another category or show all recipes.";
+          ? t("empty.searchDescription")
+          : t("empty.categoryDescription");
       emptyState.append(icon, heading, description);
       root.append(emptyState);
       return;
@@ -68,8 +69,8 @@ export function createRecipeCollection({
     }
 
     categoryFilter.replaceChildren(
-      new Option("All recipes", ""),
-      new Option("Uncategorized", "uncategorized"),
+      new Option(t("category.all"), ""),
+      new Option(t("category.uncategorized"), "uncategorized"),
       ...categories.map((category) => new Option(category, `category:${category}`)),
     );
     categoryFilter.value = selectedCategory;
@@ -111,6 +112,10 @@ export function createRecipeCollection({
       render();
     },
     setCategories,
+    refresh() {
+      setCategories(categories);
+      render();
+    },
     upsertRecipe(recipe) {
       const exists = recipes.some((item) => item.id === recipe.id);
       recipes = exists

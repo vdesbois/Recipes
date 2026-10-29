@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 export function createOrderedListEditor(root, addButton, itemName) {
   function getValues() {
     return Array.from(root.querySelectorAll("textarea"), (input) => input.value);
@@ -14,14 +16,14 @@ export function createOrderedListEditor(root, addButton, itemName) {
       input.value = value;
       input.setAttribute(
         "aria-label",
-        `${itemName[0].toUpperCase()}${itemName.slice(1)} ${index + 1}`,
+        `${t(itemName === "step" ? "item.stepLabel" : "item.ingredientLabel")} ${index + 1}`,
       );
 
       const controls = document.createElement("div");
       controls.className = "recipe-step-controls";
       for (const [action, label, symbol, disabled] of [
-        ["up", `Move ${itemName} ${index + 1} up`, "↑", index === 0],
-        ["down", `Move ${itemName} ${index + 1} down`, "↓", index === values.length - 1],
+        ["up", t("action.moveItemUp", { item: t(itemName === "step" ? "item.step" : "item.ingredient"), number: index + 1 }), "↑", index === 0],
+        ["down", t("action.moveItemDown", { item: t(itemName === "step" ? "item.step" : "item.ingredient"), number: index + 1 }), "↓", index === values.length - 1],
       ]) {
         const button = document.createElement("button");
         button.className = "step-order-button";
@@ -39,8 +41,11 @@ export function createOrderedListEditor(root, addButton, itemName) {
       removeButton.type = "button";
       removeButton.dataset.itemAction = "remove";
       removeButton.dataset.itemIndex = String(index);
-      removeButton.setAttribute("aria-label", `Remove ${itemName} ${index + 1}`);
-      removeButton.textContent = "Remove";
+      removeButton.setAttribute("aria-label", t("action.removeItem", {
+        item: t(itemName === "step" ? "item.step" : "item.ingredient"),
+        number: index + 1,
+      }));
+      removeButton.textContent = t("action.remove");
       controls.append(removeButton);
       item.append(input, controls);
       return item;

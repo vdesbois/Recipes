@@ -8,21 +8,51 @@
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="app.js"></script>
   </head>
-  <body>
+  <body data-title-key="app.title">
     <main class="app-shell">
       <header class="topbar">
-        <a class="brand" href="/" aria-label="My Recipes home">
+        <a class="brand" href="/" aria-label="My Recipes home" data-i18n-aria-label="brand.home">
           <span class="brand-mark" aria-hidden="true">✳</span>
           <span>mise</span>
         </a>
-        <span class="topbar-label">YOUR PERSONAL RECIPE BOX</span>
+        <span class="topbar-label" data-i18n="brand.tagline">YOUR PERSONAL RECIPE BOX</span>
+        <nav class="locale-switch" aria-label="Language" data-i18n-aria-label="locale.navigation">
+          <details class="locale-dropdown">
+            <summary class="locale-trigger" aria-label="Select language" data-i18n-aria-label="locale.select">
+              <span class="locale-current-flag" data-current-locale-flag aria-hidden="true"></span>
+              <span data-current-locale-label>EN</span>
+              <span class="locale-chevron" aria-hidden="true">⌄</span>
+            </summary>
+            <div class="locale-options">
+              <button type="button" class="locale-option" data-locale="fr" aria-current="false">
+                <svg class="locale-flag quebec-flag" viewBox="0 0 48 32" aria-hidden="true">
+                  <rect width="48" height="32" fill="#003da5"/>
+                  <path d="M19 0h10v11h19v10H29v11H19V21H0V11h19z" fill="#fff"/>
+                  <text x="8" y="9" fill="#fff" font-size="7">⚜</text>
+                  <text x="35" y="9" fill="#fff" font-size="7">⚜</text>
+                  <text x="8" y="30" fill="#fff" font-size="7">⚜</text>
+                  <text x="35" y="30" fill="#fff" font-size="7">⚜</text>
+                </svg>
+                <span data-i18n="locale.frenchOption">Français (Québec)</span>
+              </button>
+              <button type="button" class="locale-option" data-locale="en" aria-current="false">
+                <svg class="locale-flag canada-flag" viewBox="0 0 48 32" aria-hidden="true">
+                  <rect width="48" height="32" fill="#fff"/>
+                  <path d="M0 0h12v32H0zM36 0h12v32H36z" fill="#d80621"/>
+                  <path d="M24 5l2 5 4-2-2 5 5 1-4 3 2 4-5-1-2 6-2-6-5 1 2-4-4-3 5-1-2-5 4 2z" fill="#d80621"/>
+                </svg>
+                <span data-i18n="locale.englishOption">English (Canada)</span>
+              </button>
+            </div>
+          </details>
+        </nav>
       </header>
 
       <section class="intro" aria-labelledby="page-title">
         <div>
-          <p class="eyebrow">A little inspiration, close at hand</p>
-          <h1 id="page-title">Recipes worth<br><span>coming back to.</span></h1>
-          <p class="intro-copy">Keep your favorites, little notes, and kitchen memories all in one place.</p>
+          <p class="eyebrow" data-i18n="intro.eyebrow">A little inspiration, close at hand</p>
+          <h1 id="page-title"><span data-i18n="intro.title">Recipes worth</span><br><span data-i18n="intro.titleLine">coming back to.</span></h1>
+          <p class="intro-copy" data-i18n="intro.copy">Keep your favorites, little notes, and kitchen memories all in one place.</p>
         </div>
         <div class="intro-art" aria-hidden="true">
           <span class="art-sun"></span>
@@ -36,89 +66,119 @@
 
       <div class="notice notice-row" id="app-notice" role="alert" hidden>
         <span id="notice-message"></span>
-        <button class="button button-quiet" id="retry-load" type="button">Retry</button>
+        <button class="button button-quiet" id="retry-load" type="button" data-i18n="action.retry">Retry</button>
       </div>
-      <p class="loading-status" id="loading-status" role="status">Loading your recipes…</p>
+      <p class="loading-status" id="loading-status" role="status" data-i18n="status.loadingRecipes">Loading your recipes…</p>
       <section class="recipe-section" id="recipe-section" aria-labelledby="collection-title" hidden>
         <div class="section-heading">
           <div>
-            <p class="eyebrow">THE COLLECTION</p>
-            <h2 id="collection-title">Your recipes <span id="recipe-count" class="count">0</span></h2>
+            <p class="eyebrow" data-i18n="collection.eyebrow">THE COLLECTION</p>
+            <h2><span id="collection-title" data-i18n="collection.title">Your recipes</span> <span id="recipe-count" class="count">0</span></h2>
           </div>
           <button class="button button-primary" id="add-recipe" type="button">
-            <span aria-hidden="true">＋</span> Add a recipe
+            <span aria-hidden="true">＋</span> <span data-i18n="action.addRecipe">Add a recipe</span>
           </button>
         </div>
 
         <div class="recipe-filters">
           <div class="filter-field">
-            <label for="recipe-search">Search recipes</label>
-            <input id="recipe-search" type="search" placeholder="Search titles and notes" autocomplete="off">
+            <label for="recipe-search" data-i18n="search.label">Search recipes</label>
+            <input id="recipe-search" type="search" placeholder="Search titles and notes" data-i18n-placeholder="search.placeholder" autocomplete="off">
           </div>
           <div class="filter-field">
-            <label for="category-filter">Show category</label>
-            <select id="category-filter" aria-label="Filter recipes by category">
-              <option value="">All recipes</option>
-              <option value="uncategorized">Uncategorized</option>
+            <label for="category-filter" data-i18n="category.label">Show category</label>
+            <select id="category-filter" aria-label="Filter recipes by category" data-i18n-aria-label="category.filterLabel">
+              <option value="" data-i18n="category.all">All recipes</option>
+              <option value="uncategorized" data-i18n="category.uncategorized">Uncategorized</option>
             </select>
           </div>
         </div>
         <div class="recipe-grid" id="recipe-list" aria-live="polite"></div>
       </section>
-      <footer class="footer">Made for the recipes that feel like home <span aria-hidden="true">♥</span></footer>
+      <footer class="footer"><span data-i18n="footer">Made for the recipes that feel like home</span> <span aria-hidden="true">♥</span></footer>
     </main>
 
     <dialog class="recipe-dialog" id="recipe-dialog" aria-labelledby="dialog-title">
       <form class="recipe-form" id="recipe-form">
         <div class="dialog-heading">
           <div>
-            <p class="eyebrow">YOUR RECIPE BOX</p>
+            <p class="eyebrow" data-i18n="form.eyebrow">YOUR RECIPE BOX</p>
             <h2 id="dialog-title">Add a recipe</h2>
           </div>
-          <button class="icon-button" id="close-dialog" type="button" aria-label="Close form">×</button>
+          <nav class="locale-switch locale-switch-dialog" aria-label="Language" data-i18n-aria-label="locale.navigation">
+            <details class="locale-dropdown">
+              <summary class="locale-trigger" aria-label="Select language" data-i18n-aria-label="locale.select">
+                <span class="locale-current-flag" data-current-locale-flag aria-hidden="true"></span>
+                <span data-current-locale-label>EN</span>
+                <span class="locale-chevron" aria-hidden="true">⌄</span>
+              </summary>
+              <div class="locale-options">
+                <button type="button" class="locale-option" data-locale="fr" aria-current="false">
+                  <svg class="locale-flag quebec-flag" viewBox="0 0 48 32" aria-hidden="true">
+                    <rect width="48" height="32" fill="#003da5"/>
+                    <path d="M19 0h10v11h19v10H29v11H19V21H0V11h19z" fill="#fff"/>
+                    <text x="8" y="9" fill="#fff" font-size="7">⚜</text>
+                    <text x="35" y="9" fill="#fff" font-size="7">⚜</text>
+                    <text x="8" y="30" fill="#fff" font-size="7">⚜</text>
+                    <text x="35" y="30" fill="#fff" font-size="7">⚜</text>
+                  </svg>
+                  <span data-i18n="locale.frenchOption">Français (Québec)</span>
+                </button>
+                <button type="button" class="locale-option" data-locale="en" aria-current="false">
+                  <svg class="locale-flag canada-flag" viewBox="0 0 48 32" aria-hidden="true">
+                    <rect width="48" height="32" fill="#fff"/>
+                    <path d="M0 0h12v32H0zM36 0h12v32H36z" fill="#d80621"/>
+                    <path d="M24 5l2 5 4-2-2 5 5 1-4 3 2 4-5-1-2 6-2-6-5 1 2-4-4-3 5-1-2-5 4 2z" fill="#d80621"/>
+                  </svg>
+                  <span data-i18n="locale.englishOption">English (Canada)</span>
+                </button>
+              </div>
+            </details>
+          </nav>
+          <button class="icon-button" id="close-dialog" type="button" aria-label="Close form" data-i18n-aria-label="action.closeForm">×</button>
         </div>
-        <label class="field-label" for="recipe-name">Recipe name <span aria-hidden="true">*</span></label>
-        <input id="recipe-name" name="name" type="text" maxlength="120" placeholder="e.g. Sunday tomato pasta" required>
+        <label class="field-label" for="recipe-name"><span data-i18n="field.name">Recipe name</span> <span aria-hidden="true">*</span></label>
+        <input id="recipe-name" name="name" type="text" maxlength="120" placeholder="e.g. Sunday tomato pasta" data-i18n-placeholder="field.namePlaceholder" required>
 
-        <label class="field-label" for="recipe-rating">Your rating</label>
+        <label class="field-label" for="recipe-rating" data-i18n="field.rating">Your rating</label>
         <select id="recipe-rating" name="rating">
-          <option value="">Not rated</option>
-          <option value="1">★☆☆☆☆ — 1 star</option>
-          <option value="2">★★☆☆☆ — 2 stars</option>
-          <option value="3">★★★☆☆ — 3 stars</option>
-          <option value="4">★★★★☆ — 4 stars</option>
-          <option value="5">★★★★★ — 5 stars</option>
+          <option value="" data-i18n="rating.none">Not rated</option>
+          <option value="1" data-i18n="rating.option1">★☆☆☆☆ — 1 star</option>
+          <option value="2" data-i18n="rating.option2">★★☆☆☆ — 2 stars</option>
+          <option value="3" data-i18n="rating.option3">★★★☆☆ — 3 stars</option>
+          <option value="4" data-i18n="rating.option4">★★★★☆ — 4 stars</option>
+          <option value="5" data-i18n="rating.option5">★★★★★ — 5 stars</option>
         </select>
 
-        <label class="field-label" for="recipe-notes">Notes <span class="optional-label">OPTIONAL</span></label>
-        <textarea id="recipe-notes" name="notes" rows="5" placeholder="What would you like to remember?"></textarea>
-        <label class="field-label" for="recipe-category">Category <span class="optional-label">OPTIONAL</span></label>
-        <input id="recipe-category" name="category" type="text" maxlength="60" list="category-suggestions" placeholder="Choose or create a category">
+        <label class="field-label" for="recipe-notes"><span data-i18n="field.notes">Notes</span> <span class="optional-label" data-i18n="label.optional">OPTIONAL</span></label>
+        <textarea id="recipe-notes" name="notes" rows="5" placeholder="What would you like to remember?" data-i18n-placeholder="field.notesPlaceholder"></textarea>
+        <label class="field-label" for="recipe-category"><span data-i18n="field.category">Category</span> <span class="optional-label" data-i18n="label.optional">OPTIONAL</span></label>
+        <input id="recipe-category" name="category" type="text" maxlength="60" list="category-suggestions" placeholder="Choose or create a category" data-i18n-placeholder="field.categoryPlaceholder">
         <datalist id="category-suggestions"></datalist>
-        <label class="field-label" for="recipe-cooking-time">Cooking time in minutes <span class="optional-label">OPTIONAL</span></label>
+        <label class="field-label" for="recipe-cooking-time"><span data-i18n="field.cookingTime">Cooking time in minutes</span> <span class="optional-label" data-i18n="label.optional">OPTIONAL</span></label>
         <input id="recipe-cooking-time" name="cooking_time_minutes" type="number" min="1" step="1" inputmode="numeric">
-        <label class="field-label" for="recipe-cooking-temperature">Cooking temperature in °F <span class="optional-label">OPTIONAL</span></label>
+        <label class="field-label" for="recipe-cooking-temperature"><span data-i18n="field.temperature">Cooking temperature in °F</span> <span class="optional-label" data-i18n="label.optional">OPTIONAL</span></label>
         <input id="recipe-cooking-temperature" name="cooking_temperature_f" type="number" min="0" step="any" inputmode="decimal">
-        <label class="field-label" for="recipe-servings">Servings <span class="optional-label">OPTIONAL</span></label>
+        <label class="field-label" for="recipe-servings"><span data-i18n="field.servings">Servings</span> <span class="optional-label" data-i18n="label.optional">OPTIONAL</span></label>
         <input id="recipe-servings" name="servings" type="number" min="1" step="1" inputmode="numeric">
-        <label class="field-label" for="recipe-images">Pictures <span class="optional-label">OPTIONAL</span></label>
+        <label class="field-label" for="recipe-images"><span data-i18n="field.pictures">Pictures</span> <span class="optional-label" data-i18n="label.optional">OPTIONAL</span></label>
         <input id="recipe-images" name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-        <p class="picture-help">JPEG, PNG, or WebP. Up to 10 pictures, 5 MB each.</p>
-        <div class="recipe-image-editor" id="recipe-image-editor" aria-label="Recipe pictures"></div>
+        <p class="picture-help" data-i18n="pictures.help">JPEG, PNG, or WebP. Up to 10 pictures, 5 MB each.</p>
+        <div class="recipe-image-editor" id="recipe-image-editor" aria-label="Recipe pictures" data-i18n-aria-label="pictures.label"></div>
         <div class="step-editor-heading">
-          <span class="field-label">Ingredients <span class="optional-label">OPTIONAL</span></span>
-          <button class="button button-quiet add-step-button" id="add-recipe-ingredient" type="button">Add ingredient</button>
+          <span class="field-label"><span data-i18n="field.ingredients">Ingredients</span> <span class="optional-label" data-i18n="label.optional">OPTIONAL</span></span>
+          <button class="button button-quiet add-step-button" id="add-recipe-ingredient" type="button" data-i18n="action.addIngredient">Add ingredient</button>
         </div>
-        <ul class="recipe-step-editor" id="recipe-ingredient-editor" aria-label="Recipe ingredients"></ul>
+        <ul class="recipe-step-editor" id="recipe-ingredient-editor" aria-label="Recipe ingredients" data-i18n-aria-label="ingredients.label"></ul>
         <div class="step-editor-heading">
-          <span class="field-label">Steps <span class="optional-label">OPTIONAL</span></span>
-          <button class="button button-quiet add-step-button" id="add-recipe-step" type="button">Add step</button>
+          <span class="field-label"><span data-i18n="field.steps">Steps</span> <span class="optional-label" data-i18n="label.optional">OPTIONAL</span></span>
+          <button class="button button-quiet add-step-button" id="add-recipe-step" type="button" data-i18n="action.addStep">Add step</button>
         </div>
-        <ol class="recipe-step-editor" id="recipe-step-editor" aria-label="Recipe steps"></ol>
+        <ol class="recipe-step-editor" id="recipe-step-editor" aria-label="Recipe steps" data-i18n-aria-label="steps.label"></ol>
         <p class="form-error" id="form-error" role="alert" hidden></p>
         <div class="dialog-actions">
-          <button class="button button-quiet" id="cancel-dialog" type="button">Cancel</button>
-          <button class="button button-primary" type="submit">Save recipe</button>
+          <button class="button button-quiet" id="cancel-dialog" type="button" data-i18n="action.cancel">Cancel</button>
+          <button class="button button-primary" type="submit" data-i18n="action.save">Save recipe</button>
         </div>
       </form>
     </dialog>
