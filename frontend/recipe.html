@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f5f0">
+    <title>Recipe | My Recipes</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="recipe-page.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="My Recipes home">
+          <span class="brand-mark" aria-hidden="true">✳</span>
+          <span>mise</span>
+        </a>
+        <span class="topbar-label">YOUR PERSONAL RECIPE BOX</span>
+      </header>
+
+      <p class="loading-status" id="loading-status" role="status">Loading your recipe…</p>
+      <div class="notice notice-row" id="recipe-error" role="alert" hidden>
+        <span id="recipe-error-message"></span>
+        <a class="button button-quiet" href="/">Back to recipes</a>
+      </div>
+      <article class="recipe-detail" id="recipe-detail" hidden>
+        <a class="detail-back-link" href="/">← All recipes</a>
+        <div class="recipe-detail-heading">
+          <div>
+            <p class="eyebrow" id="detail-category"></p>
+            <h1 id="detail-name"></h1>
+            <p class="recipe-detail-rating" id="detail-rating"></p>
+          </div>
+          <a class="button button-primary" id="edit-recipe" href="/">Edit recipe</a>
+        </div>
+        <div class="recipe-detail-gallery" id="detail-gallery"></div>
+        <section class="recipe-detail-section" id="detail-notes-section" hidden>
+          <h2>Notes</h2>
+          <p class="recipe-detail-notes" id="detail-notes"></p>
+        </section>
+        <section class="recipe-detail-section" id="detail-ingredients-section" hidden>
+          <h2>Ingredients</h2>
+          <ul class="recipe-ingredients" id="detail-ingredients"></ul>
+        </section>
+        <section class="recipe-detail-section" id="detail-steps-section" hidden>
+          <h2>Instructions</h2>
+          <ol class="recipe-steps" id="detail-steps"></ol>
+        </section>
+      </article>
+      <footer class="footer">Made for the recipes that feel like home <span aria-hidden="true">♥</span></footer>
+    </main>
+  </body>
+</html>
