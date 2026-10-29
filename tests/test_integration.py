@@ -38,8 +38,8 @@ class RecipeAppIntegrationTests(unittest.TestCase):
 
     def test_frontend_assets_are_served(self):
         for path, expected in (
-            ("/", b"Add ingredient"),
-            ("/recipe.html", b"detail-name"),
+            ("/", b"recipe-cooking-time"),
+            ("/recipe.html", b"detail-cooking-section"),
             ("/recipe-page.js", b"getRecipe"),
             ("/app.js", b"recipe-collection.js"),
             ("/api.js", b"uploadRecipeImage"),

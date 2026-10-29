@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import sqlite3
 import uuid
 from functools import partial
@@ -49,6 +50,9 @@ def parse_recipe(payload):
     category = payload.get("category")
     steps = payload.get("steps", [])
     ingredients = payload.get("ingredients", [])
+    cooking_time_minutes = payload.get("cooking_time_minutes")
+    cooking_temperature_f = payload.get("cooking_temperature_f")
+    servings = payload.get("servings")
 
     if not isinstance(name, str) or not name.strip() or len(name.strip()) > 120:
         raise ValueError("Recipe name is required and must be at most 120 characters.")
@@ -73,8 +77,38 @@ def parse_recipe(payload):
     ):
         raise ValueError("Ingredients must be a list of non-empty text.")
     ingredients = [ingredient.strip() for ingredient in ingredients]
+    if cooking_time_minutes is not None and (
+        type(cooking_time_minutes) is not int or cooking_time_minutes <= 0
+    ):
+        raise ValueError("Cooking time must be empty or a positive whole number of minutes.")
+    if cooking_temperature_f is not None and (
+        isinstance(cooking_temperature_f, bool)
+        or not isinstance(cooking_temperature_f, (int, float))
+    ):
+        raise ValueError("Cooking temperature must be empty or a non-negative number in °F.")
+    if cooking_temperature_f is not None:
+        try:
+            cooking_temperature_f = float(cooking_temperature_f)
+        except OverflowError as error:
+            raise ValueError(
+                "Cooking temperature must be empty or a non-negative number in °F."
+            ) from error
+        if not math.isfinite(cooking_temperature_f) or cooking_temperature_f < 0:
+            raise ValueError("Cooking temperature must be empty or a non-negative number in °F.")
+    if servings is not None and (type(servings) is not int or servings <= 0):
+        raise ValueError("Servings must be empty or a positive whole number.")
 
-    return name.strip(), rating, notes.strip(), category, steps, ingredients
+    return (
+        name.strip(),
+        rating,
+        notes.strip(),
+        category,
+        steps,
+        ingredients,
+        cooking_time_minutes,
+        cooking_temperature_f,
+        servings,
+    )
 
 
 class RecipeRequestHandler(SimpleHTTPRequestHandler):
@@ -139,14 +173,33 @@ class RecipeRequestHandler(SimpleHTTPRequestHandler):
         if payload is None:
             return
         try:
-            name, rating, notes, category, steps, ingredients = parse_recipe(payload)
+            (
+                name,
+                rating,
+                notes,
+                category,
+                steps,
+                ingredients,
+                cooking_time_minutes,
+                cooking_temperature_f,
+                servings,
+            ) = parse_recipe(payload)
         except ValueError as error:
             self._send_json(400, {"error": str(error)})
             return
 
         try:
             recipe = create_recipe(
-                self.server.database_path, name, rating, notes, category, steps, ingredients
+                self.server.database_path,
+                name,
+                rating,
+                notes,
+                category,
+                steps,
+                ingredients,
+                cooking_time_minutes,
+                cooking_temperature_f,
+                servings,
             )
         except sqlite3.Error:
             self._send_json(500, {"error": "Database operation failed."})
@@ -162,7 +215,17 @@ class RecipeRequestHandler(SimpleHTTPRequestHandler):
         if payload is None:
             return
         try:
-            name, rating, notes, category, steps, ingredients = parse_recipe(payload)
+            (
+                name,
+                rating,
+                notes,
+                category,
+                steps,
+                ingredients,
+                cooking_time_minutes,
+                cooking_temperature_f,
+                servings,
+            ) = parse_recipe(payload)
         except ValueError as error:
             self._send_json(400, {"error": str(error)})
             return
@@ -177,6 +240,9 @@ class RecipeRequestHandler(SimpleHTTPRequestHandler):
                 category,
                 steps,
                 ingredients,
+                cooking_time_minutes,
+                cooking_temperature_f,
+                servings,
             )
         except sqlite3.Error:
             self._send_json(500, {"error": "Database operation failed."})

@@ -76,6 +76,9 @@ class RecipeRestApiTests(unittest.TestCase):
         self.assertIsNone(created["category"])
         self.assertEqual(created["steps"], [])
         self.assertEqual(created["ingredients"], [])
+        self.assertIsNone(created["cooking_time_minutes"])
+        self.assertIsNone(created["cooking_temperature_f"])
+        self.assertIsNone(created["servings"])
 
         recipe_path = f"/api/recipes/{created['id']}"
         status, fetched = self.request_json(recipe_path)
@@ -94,6 +97,9 @@ class RecipeRestApiTests(unittest.TestCase):
             "rating": 5,
             "notes": "Add basil.",
             "category": None,
+            "cooking_time_minutes": None,
+            "cooking_temperature_f": None,
+            "servings": None,
             "steps": [],
             "ingredients": [],
             "images": [],
@@ -134,6 +140,13 @@ class RecipeRestApiTests(unittest.TestCase):
             {"name": "Soup", "steps": ["Chop", 7]},
             {"name": "Soup", "ingredients": ["  "]},
             {"name": "Soup", "ingredients": ["Onion", False]},
+            {"name": "Soup", "cooking_time_minutes": 0},
+            {"name": "Soup", "cooking_time_minutes": 1.5},
+            {"name": "Soup", "cooking_temperature_f": -1},
+            {"name": "Soup", "cooking_temperature_f": True},
+            {"name": "Soup", "servings": 0},
+            {"name": "Soup", "servings": 2.5},
+            {"name": "Soup", "servings": True},
         )
         for payload in invalid_payloads:
             with self.subTest(payload=payload):
@@ -144,6 +157,54 @@ class RecipeRestApiTests(unittest.TestCase):
         status, collection = self.request_json("/api/recipes")
         self.assertEqual(status, 200)
         self.assertEqual(collection, [])
+
+    def test_recipe_cooking_details_are_created_updated_removed_and_persisted(self):
+        status, created = self.request_json(
+            "/api/recipes",
+            "POST",
+            {
+                "name": "Roast chicken",
+                "cooking_time_minutes": 90,
+                "cooking_temperature_f": 375.5,
+                "servings": 4,
+            },
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(created["cooking_time_minutes"], 90)
+        self.assertEqual(created["cooking_temperature_f"], 375.5)
+        self.assertEqual(created["servings"], 4)
+        recipe_path = f"/api/recipes/{created['id']}"
+
+        status, updated = self.request_json(
+            recipe_path,
+            "PUT",
+            {
+                "name": "Roast chicken",
+                "cooking_time_minutes": 75,
+                "cooking_temperature_f": 400,
+                "servings": 6,
+            },
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(updated["cooking_time_minutes"], 75)
+        self.assertEqual(updated["cooking_temperature_f"], 400)
+        self.assertEqual(updated["servings"], 6)
+        self.assertEqual(self.request_json("/api/recipes")[1], [updated])
+
+        status, cleared = self.request_json(
+            recipe_path,
+            "PUT",
+            {
+                "name": "Roast chicken",
+                "cooking_time_minutes": None,
+                "cooking_temperature_f": None,
+                "servings": None,
+            },
+        )
+        self.assertEqual(status, 200)
+        self.assertIsNone(cleared["cooking_time_minutes"])
+        self.assertIsNone(cleared["cooking_temperature_f"])
+        self.assertIsNone(cleared["servings"])
 
     def test_recipe_steps_are_created_reordered_removed_and_persisted(self):
         status, created = self.request_json(

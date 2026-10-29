@@ -25,12 +25,18 @@ test.describe("recipe collection", () => {
     const rating = page.getByLabel("Your rating");
     const notes = page.getByLabel("Notes OPTIONAL");
     const category = page.getByLabel("Category OPTIONAL");
+    const cookingTime = page.getByLabel("Cooking time in minutes OPTIONAL");
+    const cookingTemperature = page.getByLabel("Cooking temperature in °F OPTIONAL");
+    const servings = page.getByLabel("Servings OPTIONAL");
 
     await expect(name).toHaveValue("");
     await expect(name).toHaveAttribute("required", "");
     await expect(rating).toHaveValue("");
     await expect(notes).toHaveValue("");
     await expect(category).toHaveValue("");
+    await expect(cookingTime).toHaveValue("");
+    await expect(cookingTemperature).toHaveValue("");
+    await expect(servings).toHaveValue("");
     await expect(page.locator("#recipe-ingredient-editor li")).toHaveCount(0);
 
     await page.getByRole("button", { name: "Save recipe" }).click();
@@ -197,6 +203,45 @@ test.describe("recipe collection", () => {
     await page.getByRole("link", { name: "Edit recipe" }).click();
     await expect(page).toHaveURL(`**/?edit=${recipe.id}`);
     await expect(page.locator("#recipe-dialog")).toBeVisible();
+  });
+
+  test("adds, edits, displays, and removes cooking details", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Add a recipe" }).click();
+    await page.getByLabel("Recipe name").fill("Roast chicken");
+    await page.getByLabel("Cooking time in minutes OPTIONAL").fill("90");
+    await page.getByLabel("Cooking temperature in °F OPTIONAL").fill("375.5");
+    await page.getByLabel("Servings OPTIONAL").fill("4");
+    await page.getByRole("button", { name: "Save recipe" }).click();
+
+    await page.getByRole("link", { name: "View Roast chicken" }).click();
+    await expect(page.locator("#detail-cooking-time")).toHaveText("90 minutes");
+    await expect(page.locator("#detail-cooking-temperature")).toHaveText("375.5 °F");
+    await expect(page.locator("#detail-servings")).toHaveText("4");
+    await page.reload();
+    await expect(page.locator("#detail-cooking-section")).toBeVisible();
+
+    await page.getByRole("link", { name: "Edit recipe" }).click();
+    await expect(page.getByLabel("Cooking time in minutes OPTIONAL")).toHaveValue("90");
+    await expect(page.getByLabel("Cooking temperature in °F OPTIONAL")).toHaveValue("375.5");
+    await expect(page.getByLabel("Servings OPTIONAL")).toHaveValue("4");
+    await page.getByLabel("Cooking time in minutes OPTIONAL").fill("75");
+    await page.getByLabel("Cooking temperature in °F OPTIONAL").fill("400");
+    await page.getByLabel("Servings OPTIONAL").fill("6");
+    await page.getByRole("button", { name: "Save recipe" }).click();
+
+    await page.getByRole("link", { name: "View Roast chicken" }).click();
+    await expect(page.locator("#detail-cooking-time")).toHaveText("75 minutes");
+    await expect(page.locator("#detail-cooking-temperature")).toHaveText("400 °F");
+    await expect(page.locator("#detail-servings")).toHaveText("6");
+
+    await page.getByRole("link", { name: "Edit recipe" }).click();
+    await page.getByLabel("Cooking time in minutes OPTIONAL").fill("");
+    await page.getByLabel("Cooking temperature in °F OPTIONAL").fill("");
+    await page.getByLabel("Servings OPTIONAL").fill("");
+    await page.getByRole("button", { name: "Save recipe" }).click();
+    await page.getByRole("link", { name: "View Roast chicken" }).click();
+    await expect(page.locator("#detail-cooking-section")).toBeHidden();
   });
 
   test("adds, edits, removes, and reorders numbered recipe steps", async ({ page }) => {

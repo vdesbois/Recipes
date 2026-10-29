@@ -32,11 +32,21 @@ def initialize_database(database_path):
         columns = {
             row["name"] for row in connection.execute("pragma table_info(recipes)")
         }
-        if "category_id" not in columns:
-            connection.execute(
-                "alter table recipes add column category_id integer "
-                "references categories (id) on delete set null"
-            )
+        migrations = {
+            "category_id": "integer references categories (id) on delete set null",
+            "cooking_time_minutes": (
+                "integer check (cooking_time_minutes is null or cooking_time_minutes > 0)"
+            ),
+            "cooking_temperature_f": (
+                "real check (cooking_temperature_f is null or cooking_temperature_f >= 0)"
+            ),
+            "servings": "integer check (servings is null or servings > 0)",
+        }
+        for column, definition in migrations.items():
+            if column not in columns:
+                connection.execute(
+                    f"alter table recipes add column {column} {definition}"
+                )
         connection.execute(
             "create index if not exists recipes_category_id_idx on recipes (category_id)"
         )
@@ -47,6 +57,8 @@ def list_recipes(database_path):
         rows = connection.execute(
             """
             select recipes.id, recipes.name, recipes.rating, recipes.notes,
+                   recipes.cooking_time_minutes, recipes.cooking_temperature_f,
+                   recipes.servings,
                    categories.name as category
             from recipes
             left join categories on categories.id = recipes.category_id
@@ -59,6 +71,9 @@ def list_recipes(database_path):
                 "name": row["name"],
                 "rating": row["rating"],
                 "notes": row["notes"],
+                "cooking_time_minutes": row["cooking_time_minutes"],
+                "cooking_temperature_f": row["cooking_temperature_f"],
+                "servings": row["servings"],
                 "category": row["category"],
                 "steps": [],
                 "ingredients": [],
@@ -76,6 +91,8 @@ def _read_recipe(connection, recipe_id):
     row = connection.execute(
         """
         select recipes.id, recipes.name, recipes.rating, recipes.notes,
+               recipes.cooking_time_minutes, recipes.cooking_temperature_f,
+               recipes.servings,
                categories.name as category
         from recipes
         left join categories on categories.id = recipes.category_id
@@ -91,6 +108,9 @@ def _read_recipe(connection, recipe_id):
         "name": row["name"],
         "rating": row["rating"],
         "notes": row["notes"],
+        "cooking_time_minutes": row["cooking_time_minutes"],
+        "cooking_temperature_f": row["cooking_temperature_f"],
+        "servings": row["servings"],
         "category": row["category"],
         "steps": [],
         "ingredients": [],
@@ -263,14 +283,37 @@ def _remove_unused_category(connection, category_id):
 
 
 def create_recipe(
-    database_path, name, rating, notes, category=None, steps=None, ingredients=None
+    database_path,
+    name,
+    rating,
+    notes,
+    category=None,
+    steps=None,
+    ingredients=None,
+    cooking_time_minutes=None,
+    cooking_temperature_f=None,
+    servings=None,
 ):
     recipe_id = str(uuid.uuid4())
     with closing(_connect(database_path)) as connection, connection:
         category_id = _category_id(connection, category)
         connection.execute(
-            "insert into recipes (id, name, rating, notes, category_id) values (?, ?, ?, ?, ?)",
-            (recipe_id, name, rating, notes, category_id),
+            """
+            insert into recipes (
+                id, name, rating, notes, category_id, cooking_time_minutes,
+                cooking_temperature_f, servings
+            ) values (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                recipe_id,
+                name,
+                rating,
+                notes,
+                category_id,
+                cooking_time_minutes,
+                cooking_temperature_f,
+                servings,
+            ),
         )
         _replace_steps(connection, recipe_id, steps or [])
         _replace_ingredients(connection, recipe_id, ingredients or [])
@@ -279,7 +322,17 @@ def create_recipe(
 
 
 def update_recipe(
-    database_path, recipe_id, name, rating, notes, category=None, steps=None, ingredients=None
+    database_path,
+    recipe_id,
+    name,
+    rating,
+    notes,
+    category=None,
+    steps=None,
+    ingredients=None,
+    cooking_time_minutes=None,
+    cooking_temperature_f=None,
+    servings=None,
 ):
     with closing(_connect(database_path)) as connection, connection:
         existing = connection.execute(
@@ -292,8 +345,22 @@ def update_recipe(
         old_category_id = existing["category_id"]
         category_id = _category_id(connection, category)
         cursor = connection.execute(
-            "update recipes set name = ?, rating = ?, notes = ?, category_id = ? where id = ?",
-            (name, rating, notes, category_id, recipe_id),
+            """
+            update recipes
+            set name = ?, rating = ?, notes = ?, category_id = ?,
+                cooking_time_minutes = ?, cooking_temperature_f = ?, servings = ?
+            where id = ?
+            """,
+            (
+                name,
+                rating,
+                notes,
+                category_id,
+                cooking_time_minutes,
+                cooking_temperature_f,
+                servings,
+                recipe_id,
+            ),
         )
         if cursor.rowcount == 0:
             return None

@@ -37,6 +37,22 @@ function renderRecipe(recipe) {
   }));
   gallery.hidden = recipe.images.length === 0;
 
+  const cookingDetails = [
+    ["cooking_time_minutes", "detail-cooking-time-row", "detail-cooking-time", (value) => `${value} minutes`],
+    ["cooking_temperature_f", "detail-cooking-temperature-row", "detail-cooking-temperature", (value) => `${value} °F`],
+    ["servings", "detail-servings-row", "detail-servings", (value) => String(value)],
+  ];
+  for (const [property, rowId, valueId, format] of cookingDetails) {
+    const row = document.querySelector(`#${rowId}`);
+    row.hidden = recipe[property] === null;
+    document.querySelector(`#${valueId}`).textContent = recipe[property] === null
+      ? ""
+      : format(recipe[property]);
+  }
+  document.querySelector("#detail-cooking-section").hidden = cookingDetails.every(
+    ([property]) => recipe[property] === null,
+  );
+
   const notesSection = document.querySelector("#detail-notes-section");
   document.querySelector("#detail-notes").textContent = recipe.notes;
   notesSection.hidden = recipe.notes.length === 0;

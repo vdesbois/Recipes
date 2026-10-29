@@ -28,7 +28,47 @@ class RecipeDatabaseTests(unittest.TestCase):
 
         self.assertEqual(recipe["steps"], [])
         self.assertEqual(recipe["ingredients"], [])
+        self.assertIsNone(recipe["cooking_time_minutes"])
+        self.assertIsNone(recipe["cooking_temperature_f"])
+        self.assertIsNone(recipe["servings"])
         self.assertEqual(list_recipes(self.database_path), [recipe])
+
+    def test_cooking_details_are_created_updated_and_removed(self):
+        recipe = create_recipe(
+            self.database_path,
+            "Roast chicken",
+            None,
+            "",
+            cooking_time_minutes=90,
+            cooking_temperature_f=375.5,
+            servings=4,
+        )
+        self.assertEqual(recipe["cooking_time_minutes"], 90)
+        self.assertEqual(recipe["cooking_temperature_f"], 375.5)
+        self.assertEqual(recipe["servings"], 4)
+        self.assertEqual(read_recipe(self.database_path, recipe["id"]), recipe)
+
+        updated = update_recipe(
+            self.database_path,
+            recipe["id"],
+            "Roast chicken",
+            None,
+            "",
+            cooking_time_minutes=75,
+            cooking_temperature_f=400,
+            servings=6,
+        )
+        self.assertEqual(updated["cooking_time_minutes"], 75)
+        self.assertEqual(updated["cooking_temperature_f"], 400)
+        self.assertEqual(updated["servings"], 6)
+        self.assertEqual(list_recipes(self.database_path), [updated])
+
+        without_details = update_recipe(
+            self.database_path, recipe["id"], "Roast chicken", None, ""
+        )
+        self.assertIsNone(without_details["cooking_time_minutes"])
+        self.assertIsNone(without_details["cooking_temperature_f"])
+        self.assertIsNone(without_details["servings"])
 
     def test_update_recipe(self):
         recipe = create_recipe(self.database_path, "Tomato soup", None, "")
@@ -133,6 +173,9 @@ class RecipeDatabaseTests(unittest.TestCase):
         self.assertIsNone(migrated["category"])
         self.assertEqual(migrated["steps"], [])
         self.assertEqual(migrated["ingredients"], [])
+        self.assertIsNone(migrated["cooking_time_minutes"])
+        self.assertIsNone(migrated["cooking_temperature_f"])
+        self.assertIsNone(migrated["servings"])
 
     def test_database_constraints_reject_invalid_recipes(self):
         invalid_values = (

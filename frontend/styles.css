@@ -850,6 +850,27 @@ h1 span {
   font-weight: 600;
 }
 
+.recipe-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin: 0;
+}
+
+.recipe-meta div {
+  min-width: 120px;
+}
+
+.recipe-meta dt {
+  color: #68766d;
+  font-size: 12px;
+}
+
+.recipe-meta dd {
+  margin: 3px 0 0;
+  font-weight: 600;
+}
+
 .recipe-detail-notes {
   margin: 0;
   color: #68766d;

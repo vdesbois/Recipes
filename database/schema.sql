@@ -9,6 +9,9 @@ create table if not exists recipes (
     rating integer check (rating between 1 and 5),
     notes text not null default '',
     category_id integer references categories (id) on delete set null,
+    cooking_time_minutes integer check (cooking_time_minutes is null or cooking_time_minutes > 0),
+    cooking_temperature_f real check (cooking_temperature_f is null or cooking_temperature_f >= 0),
+    servings integer check (servings is null or servings > 0),
     created_at text not null default (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 

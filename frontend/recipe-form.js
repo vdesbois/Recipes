@@ -16,6 +16,9 @@ export function createRecipeForm({ onSaved }) {
   const ratingInput = document.querySelector("#recipe-rating");
   const notesInput = document.querySelector("#recipe-notes");
   const categoryInput = document.querySelector("#recipe-category");
+  const cookingTimeInput = document.querySelector("#recipe-cooking-time");
+  const cookingTemperatureInput = document.querySelector("#recipe-cooking-temperature");
+  const servingsInput = document.querySelector("#recipe-servings");
   const categorySuggestions = document.querySelector("#category-suggestions");
   const imageInput = document.querySelector("#recipe-images");
   const imageEditor = document.querySelector("#recipe-image-editor");
@@ -104,6 +107,9 @@ export function createRecipeForm({ onSaved }) {
       : String(recipe.rating);
     notesInput.value = recipe?.notes ?? "";
     categoryInput.value = recipe?.category ?? "";
+    cookingTimeInput.value = recipe?.cooking_time_minutes ?? "";
+    cookingTemperatureInput.value = recipe?.cooking_temperature_f ?? "";
+    servingsInput.value = recipe?.servings ?? "";
     renderImages();
     stepEditor.setValues(recipe?.steps ?? []);
     ingredientEditor.setValues(recipe?.ingredients ?? []);
@@ -162,6 +168,13 @@ export function createRecipeForm({ onSaved }) {
       rating: ratingInput.value === "" ? null : Number(ratingInput.value),
       notes: notesInput.value.trim(),
       category: categoryInput.value.trim() || null,
+      cooking_time_minutes: cookingTimeInput.value === ""
+        ? null
+        : Number(cookingTimeInput.value),
+      cooking_temperature_f: cookingTemperatureInput.value === ""
+        ? null
+        : Number(cookingTemperatureInput.value),
+      servings: servingsInput.value === "" ? null : Number(servingsInput.value),
       ingredients: ingredientEditor.getValues()
         .map((ingredient) => ingredient.trim())
         .filter(Boolean),

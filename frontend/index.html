@@ -95,6 +95,12 @@
         <label class="field-label" for="recipe-category">Category <span class="optional-label">OPTIONAL</span></label>
         <input id="recipe-category" name="category" type="text" maxlength="60" list="category-suggestions" placeholder="Choose or create a category">
         <datalist id="category-suggestions"></datalist>
+        <label class="field-label" for="recipe-cooking-time">Cooking time in minutes <span class="optional-label">OPTIONAL</span></label>
+        <input id="recipe-cooking-time" name="cooking_time_minutes" type="number" min="1" step="1" inputmode="numeric">
+        <label class="field-label" for="recipe-cooking-temperature">Cooking temperature in °F <span class="optional-label">OPTIONAL</span></label>
+        <input id="recipe-cooking-temperature" name="cooking_temperature_f" type="number" min="0" step="any" inputmode="decimal">
+        <label class="field-label" for="recipe-servings">Servings <span class="optional-label">OPTIONAL</span></label>
+        <input id="recipe-servings" name="servings" type="number" min="1" step="1" inputmode="numeric">
         <label class="field-label" for="recipe-images">Pictures <span class="optional-label">OPTIONAL</span></label>
         <input id="recipe-images" name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple>
         <p class="picture-help">JPEG, PNG, or WebP. Up to 10 pictures, 5 MB each.</p>
