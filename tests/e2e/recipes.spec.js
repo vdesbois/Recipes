@@ -152,7 +152,7 @@ test.describe("recipe collection", () => {
     const savedRecipe = (await (await request.get("/api/recipes")).json())
       .find((recipe) => recipe.name === "Berry tart");
     await expect(card.locator(".recipe-picture")).toHaveAttribute("src", savedRecipe.images[0].url);
-    await card.locator(".recipe-picture").click();
+    await card.getByRole("link", { name: "View Berry tart" }).click();
     await expect(page).toHaveURL(/recipe\.html\?id=/);
     await expect(page.getByRole("heading", { name: "Berry tart" })).toBeVisible();
     await expect(page.locator("#detail-gallery img")).toHaveCount(2);
