@@ -10,6 +10,14 @@ const noticeMessage = document.querySelector("#notice-message");
 const loadingStatus = document.querySelector("#loading-status");
 const recipeSection = document.querySelector("#recipe-section");
 
+document.querySelector("#recipe-dialog").addEventListener("close", () => {
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("edit")) {
+    url.searchParams.delete("edit");
+    window.history.replaceState(window.history.state, "", url);
+  }
+});
+
 function showNotice(message) {
   appNotice.hidden = false;
   noticeMessage.textContent = message;

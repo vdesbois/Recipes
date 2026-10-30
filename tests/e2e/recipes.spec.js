@@ -237,6 +237,13 @@ test.describe("recipe collection", () => {
     await page.getByRole("link", { name: "Edit recipe" }).click();
     await expect(page).toHaveURL(new RegExp(`/\\?edit=${recipe.id}$`));
     await expect(page.locator("#recipe-dialog")).toBeVisible();
+    await page.getByLabel("Recipe name").fill("Roasted tomato and basil soup");
+    await page.getByRole("button", { name: "Save recipe" }).click();
+    await expect(page).toHaveURL("/");
+    await expect(page.locator("#recipe-dialog")).toBeHidden();
+    await expect(page.getByRole("link", { name: "View Roasted tomato and basil soup" })).toBeVisible();
+    await page.reload();
+    await expect(page.locator("#recipe-dialog")).toBeHidden();
   });
 
   test("adds, edits, displays, and removes cooking details", async ({ page }) => {
@@ -283,6 +290,7 @@ test.describe("recipe collection", () => {
     await page.getByRole("button", { name: "Add a recipe" }).click();
     await page.getByLabel("Recipe name").fill("Vegetable soup");
     await page.getByRole("button", { name: "Add step" }).click();
+    await expect(page.getByRole("textbox", { name: "Step 1", exact: true })).toHaveJSProperty("tagName", "TEXTAREA");
     await page.getByRole("textbox", { name: "Step 1", exact: true }).fill("Chop the vegetables.");
     await page.getByRole("button", { name: "Add step" }).click();
     await page.getByRole("textbox", { name: "Step 2", exact: true }).fill("Simmer until tender.");
@@ -335,6 +343,7 @@ test.describe("recipe collection", () => {
     await page.getByRole("button", { name: "Add a recipe" }).click();
     await page.getByLabel("Recipe name").fill("Garden salad");
     await page.getByRole("button", { name: "Add ingredient" }).click();
+    await expect(page.getByRole("textbox", { name: "Ingredient 1", exact: true })).toHaveAttribute("type", "text");
     await page.getByRole("textbox", { name: "Ingredient 1", exact: true }).fill("Lettuce");
     await page.getByRole("button", { name: "Add ingredient" }).click();
     await page.getByRole("textbox", { name: "Ingredient 2", exact: true }).fill("Tomatoes");
