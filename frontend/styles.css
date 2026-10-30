@@ -839,7 +839,9 @@ h1 span {
 }
 
 .add-step-button {
+  display: flex;
   min-height: 34px;
+  margin-left: auto;
   margin-top: 10px;
   padding: 0 10px;
   font-size: 12px;
