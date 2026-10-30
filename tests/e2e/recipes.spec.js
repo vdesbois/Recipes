@@ -286,6 +286,13 @@ test.describe("recipe collection", () => {
     await page.getByRole("textbox", { name: "Step 1", exact: true }).fill("Chop the vegetables.");
     await page.getByRole("button", { name: "Add step" }).click();
     await page.getByRole("textbox", { name: "Step 2", exact: true }).fill("Simmer until tender.");
+    expect(await page.locator("#add-recipe-step").evaluate((button) => (
+      button.previousElementSibling.id
+    ))).toBe("recipe-step-editor");
+    expect(await page.locator("#add-recipe-step").evaluate((button) => (
+      button.getBoundingClientRect().top
+        >= button.previousElementSibling.lastElementChild.getBoundingClientRect().bottom
+    ))).toBeTruthy();
     await page.getByRole("button", { name: "Save recipe" }).click();
 
     await page.getByRole("link", { name: "View Vegetable soup" }).click();
@@ -333,6 +340,13 @@ test.describe("recipe collection", () => {
     await page.getByRole("textbox", { name: "Ingredient 2", exact: true }).fill("Tomatoes");
     await page.getByRole("button", { name: "Add ingredient" }).click();
     await page.getByRole("textbox", { name: "Ingredient 3", exact: true }).fill("Cucumber");
+    expect(await page.locator("#add-recipe-ingredient").evaluate((button) => (
+      button.previousElementSibling.id
+    ))).toBe("recipe-ingredient-editor");
+    expect(await page.locator("#add-recipe-ingredient").evaluate((button) => (
+      button.getBoundingClientRect().top
+        >= button.previousElementSibling.lastElementChild.getBoundingClientRect().bottom
+    ))).toBeTruthy();
     await page.getByRole("button", { name: "Save recipe" }).click();
 
     await page.getByRole("link", { name: "View Garden salad" }).click();
