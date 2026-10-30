@@ -2,7 +2,7 @@ import { t } from "./i18n.js";
 
 export function createOrderedListEditor(root, addButton, itemName) {
   function getValues() {
-    return Array.from(root.querySelectorAll("textarea"), (input) => input.value);
+    return Array.from(root.querySelectorAll("input, textarea"), (input) => input.value);
   }
 
   function setValues(values) {
@@ -10,9 +10,15 @@ export function createOrderedListEditor(root, addButton, itemName) {
       const item = document.createElement("li");
       item.className = "recipe-step-row";
 
-      const input = document.createElement("textarea");
-      input.className = "recipe-step-input";
-      input.rows = 2;
+      const input = itemName === "step"
+        ? document.createElement("textarea")
+        : document.createElement("input");
+      input.className = itemName === "step" ? "recipe-step-input" : "recipe-ingredient-input";
+      if (input instanceof HTMLTextAreaElement) {
+        input.rows = 2;
+      } else {
+        input.type = "text";
+      }
       input.value = value;
       input.setAttribute(
         "aria-label",
@@ -54,7 +60,7 @@ export function createOrderedListEditor(root, addButton, itemName) {
 
   addButton.addEventListener("click", () => {
     setValues([...getValues(), ""]);
-    root.querySelector("li:last-child textarea").focus();
+    root.querySelector("li:last-child input, li:last-child textarea").focus();
   });
 
   root.addEventListener("click", (event) => {
