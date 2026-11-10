@@ -29,7 +29,10 @@ export function createRecipeCollection({
     const visibleRecipes = recipes.filter((recipe) => {
       const matchesSearch = normalizedSearch === ""
         || recipe.name.toLowerCase().includes(normalizedSearch)
-        || recipe.notes.toLowerCase().includes(normalizedSearch);
+        || recipe.notes.toLowerCase().includes(normalizedSearch)
+        || recipe.ingredients.some((ingredient) => (
+          ingredient.toLowerCase().includes(normalizedSearch)
+        ));
       const matchesCategory = selectedCategory === "uncategorized"
         ? recipe.category === null
         : selectedCategory.startsWith("category:")

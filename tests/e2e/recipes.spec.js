@@ -523,11 +523,12 @@ test.describe("recipe collection", () => {
     await expect(page.locator("#recipe-page-status")).toHaveText("Page 1 sur 2");
   });
 
-  test("searches contiguous text in titles and notes without case sensitivity", async ({ page, request }) => {
+  test("searches contiguous text in titles, notes, and ingredients without case sensitivity", async ({ page, request }) => {
     for (const recipe of [
       { name: "Roasted Tomato Soup", notes: "Serve with crusty bread.", category: "Dinner" },
       { name: "Sunday Pasta", notes: "Finish with FRESH BASIL leaves.", category: "Dinner" },
       { name: "Lemon Tart", notes: "Chill before serving.", category: "Dessert" },
+      { name: "Sunday Dinner", ingredients: ["1 roasted chicken"], category: "Dinner" },
     ]) {
       const response = await request.post("/api/recipes", { data: recipe });
       expect(response.status()).toBe(201);
@@ -546,6 +547,13 @@ test.describe("recipe collection", () => {
     await expect(page.getByRole("article")).toHaveCount(1);
     await expect(page.getByRole("heading", { name: "Sunday Pasta" })).toBeVisible();
 
+    await search.fill("chicken");
+    await expect(page.getByRole("article")).toHaveCount(1);
+    await expect(page.getByRole("heading", { name: "Sunday Dinner" })).toBeVisible();
+    await search.fill("roasted chick");
+    await expect(page.getByRole("article")).toHaveCount(1);
+    await expect(page.getByRole("heading", { name: "Sunday Dinner" })).toBeVisible();
+
     await search.fill("fresh basil leaves");
     await expect(page.getByRole("article")).toHaveCount(1);
     await search.fill("basil fresh");
@@ -563,7 +571,7 @@ test.describe("recipe collection", () => {
     await expect(page.locator("#recipe-count")).toHaveText("1");
 
     await search.fill("");
-    await expect(page.getByRole("article")).toHaveCount(2);
+    await expect(page.getByRole("article")).toHaveCount(3);
     await expect(page.getByRole("heading", { name: "Sunday Pasta" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Lemon Tart" })).toHaveCount(0);
   });
